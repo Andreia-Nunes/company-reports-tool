@@ -2,6 +2,9 @@ package br.edu.ifpb.companyreportstool.service;
 
 import br.edu.ifpb.companyreportstool.domain.Tax;
 import br.edu.ifpb.companyreportstool.repository.TaxRepository;
+import br.edu.ifpb.companyreportstool.service.report.TaxReport;
+import br.edu.ifpb.companyreportstool.service.report.TaxReportHTML;
+import br.edu.ifpb.companyreportstool.service.report.TaxReportJSON;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,8 +22,6 @@ import static org.hamcrest.Matchers.equalTo;
 public class TaxReportTest {
 
     @Autowired
-    private TaxReport expenseReport;
-    @Autowired
     private TaxRepository taxRepository;
 
     private Tax tax;
@@ -36,19 +37,19 @@ public class TaxReportTest {
     }
 
     @Test
-    public void generateHTMLReportTest() {
-        String report = expenseReport.generateReport("html");
+    public void generateHTMLReportTest(@Autowired TaxReportHTML taxReportHTML) {
+        String report = taxReportHTML.generateReport();
         String body = "<ul><li>"+taxRepository.findAll().stream()
-                .map(Objects::toString).collect(Collectors.joining("</li><li>"))+"</li></ul>";
+                .map(object -> Objects::toString).collect(Collectors.joining("</li><li>"))+"</li></ul>";
         assertThat(report, equalTo("<header><h1>Company Report</h1></header><main><h2>This is the tax Report</h2><p>"+body+"</p></main><footer>2022 - Design Patterns IFPB</footer>"));
         System.out.println(report);
     }
 
     @Test
-    public void generateJsonReportTest() {
-        String report = expenseReport.generateReport("json");
+    public void generateJsonReportTest(@Autowired TaxReportJSON taxReportJSON) {
+        String report = taxReportJSON.generateReport();
         String body = taxRepository.findAll().stream()
-                .map(Objects::toString).collect(Collectors.joining(","));
+                .map(object -> Objects::toString).collect(Collectors.joining(","));
         assertThat(report, equalTo("{ header: \"Company Report\" ,main: { title: \"This is the tax Report\", content: \""+body+"\" ,footer: \"2022 - Design Patterns IFPB\" }"));
         System.out.println(report);
     }
